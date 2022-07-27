@@ -2,17 +2,17 @@ import React, { Component } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { toast } from 'react-toastify';
 
-import { fetchImages } from 'services/image-api';
-import { imageMapper } from 'utils/mapper';
+import fetchImages from 'services/image-api';
+import imageMapper from 'utils/mapper';
 
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
 import Modal from './Modal';
 import Button from './Button';
 import Loader from './Loader';
-import { Box } from './Box';
+import Box from './Box';
 
-export default class App extends Component {
+class App extends Component {
   state = {
     items: [],
     page: 1,
@@ -101,3 +101,5 @@ export default class App extends Component {
     );
   }
 }
+
+export default App;

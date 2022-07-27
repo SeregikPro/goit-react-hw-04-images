@@ -9,7 +9,7 @@ import {
   border,
 } from 'styled-system';
 
-export const Box = styled('div')(
+const Box = styled('div')(
   space,
   color,
   typography,
@@ -18,3 +18,5 @@ export const Box = styled('div')(
   grid,
   border
 );
+
+export default Box;
