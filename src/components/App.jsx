@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { toast } from 'react-toastify';
 
@@ -7,99 +7,75 @@ import imageMapper from 'utils/mapper';
 
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
-import Modal from './Modal';
 import Button from './Button';
 import Loader from './Loader';
 import Box from './Box';
 
-class App extends Component {
-  state = {
-    items: [],
-    page: 1,
-    searchParams: '',
-    isLoading: false,
-    showModal: false,
-    largeImage: null,
-    error: null,
-  };
+const App = () => {
+  const [items, setItems] = useState([]);
+  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  componentDidUpdate(prevProps, prevState) {
-    const { searchParams, page } = this.state;
-    const prevSearch = prevState.searchParams;
-
-    if (prevSearch !== searchParams || prevState.page !== page) {
-      this.loadImages(searchParams, page);
+  useEffect(() => {
+    if (searchParams === '') {
+      return;
     }
-  }
 
-  loadImages = async (searchParams, page) => {
-    this.setState({ isLoading: true });
+    const loadImages = async (searchParams, page) => {
+      setIsLoading(true);
 
-    fetchImages(searchParams, page)
-      .then(hits => {
-        if (hits.length) {
-          return this.setState({
-            items: [...this.state.items, ...imageMapper(hits)],
-          });
-        }
+      fetchImages(searchParams, page)
+        .then(hits => {
+          if (!hits.length) {
+            throw new Error(
+              toast.error(
+                `Sorry, there are no images with query "${searchParams}". Please try again.`
+              )
+            );
+          }
+          setItems(items => [...items, ...imageMapper(hits)]);
+        })
+        .catch(error => {
+          console.log(error);
+        })
+        .finally(() => setIsLoading(false));
+    };
 
-        return Promise.reject(
-          new Error(
-            toast.error(
-              `Sorry, there are no images with query "${searchParams}". Please try again.`
-            )
-          )
-        );
-      })
+    loadImages(searchParams, page);
+  }, [page, searchParams]);
 
-      .catch(error => this.setState({ error }))
-      .finally(() => this.setState({ isLoading: false }));
+  const handleSearchSubmit = searchParams => {
+    setSearchParams(searchParams);
+    setPage(1);
+    setItems([]);
   };
 
-  handleSearchSubmit = searchParams => {
-    this.setState({ searchParams, page: 1, items: [] });
+  const loadMore = () => {
+    setPage(page => page + 1);
   };
 
-  toggleModal = image => {
-    this.setState(({ showModal, largeImage }) => ({
-      showModal: !showModal,
-      largeImage: image,
-    }));
-  };
+  return (
+    <Box
+      display="grid"
+      gridTemplateColumns="1fr"
+      gridGap="16px"
+      pb="24px"
+      as="main"
+    >
+      <Searchbar onSubmit={handleSearchSubmit} />
 
-  loadMore = () => {
-    this.setState(({ page }) => ({ page: page + 1 }));
-  };
+      {items.length > 0 && <ImageGallery images={items} />}
 
-  render() {
-    const { items, largeImage, showModal, isLoading } = this.state;
+      {isLoading && <Loader />}
 
-    return (
-      <Box
-        display="grid"
-        gridTemplateColumns="1fr"
-        gridGap="16px"
-        pb="24px"
-        as="main"
-      >
-        {showModal && (
-          <Modal onClose={this.toggleModal} largeImageURL={largeImage} />
-        )}
+      {items.length > 0 && (
+        <Button children="Load more" handleClick={loadMore} />
+      )}
 
-        <Searchbar onSubmit={this.handleSearchSubmit} />
-
-        <ImageGallery images={items} onClick={this.toggleModal} />
-
-        {isLoading && <Loader />}
-
-        {items.length > 0 && (
-          <Button children="Load more" handleClick={this.loadMore} />
-        )}
-
-        <ToastContainer autoClose={3000} />
-      </Box>
-    );
-  }
-}
+      <ToastContainer autoClose={3000} />
+    </Box>
+  );
+};
 
 export default App;

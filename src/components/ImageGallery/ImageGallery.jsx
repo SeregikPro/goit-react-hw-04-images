@@ -2,7 +2,7 @@ import ImageGalleryItem from 'components/ImageGalleryItem';
 import PropTypes from 'prop-types';
 import { Gallery } from './ImageGallery.styled';
 
-const ImageGallery = ({ images, onClick }) => {
+const ImageGallery = ({ images }) => {
   return (
     <Gallery>
       {images.map(({ id, webformatURL, largeImageURL }) => {
@@ -10,7 +10,7 @@ const ImageGallery = ({ images, onClick }) => {
           <ImageGalleryItem
             key={id}
             webformatURL={webformatURL}
-            onClick={() => onClick(largeImageURL)}
+            largeImageURL={largeImageURL}
           />
         );
       })}
@@ -25,8 +25,6 @@ ImageGallery.propTypes = {
     PropTypes.shape({
       id: PropTypes.number.isRequired,
       webformatURL: PropTypes.string.isRequired,
-      largeImageURL: PropTypes.string.isRequired,
     }).isRequired
   ).isRequired,
-  onClick: PropTypes.func.isRequired,
 };

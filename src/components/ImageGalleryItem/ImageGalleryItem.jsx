@@ -1,10 +1,24 @@
+import { useState } from 'react';
+import Modal from 'components/Modal';
 import PropTypes from 'prop-types';
 import { GalleryItem, GalleryImage } from './ImageGalleryItem.styled';
 
-const ImageGalleryItem = ({ webformatURL, largeImageURL, onClick }) => {
+const ImageGalleryItem = ({ webformatURL, largeImageURL }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
-    <GalleryItem onClick={() => onClick(largeImageURL)}>
-      <GalleryImage src={webformatURL} alt="image" />
+    <GalleryItem>
+      <GalleryImage
+        src={webformatURL}
+        alt="image"
+        onClick={() => setIsModalOpen(true)}
+      />
+      {isModalOpen && (
+        <Modal
+          largeImageURL={largeImageURL}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </GalleryItem>
   );
 };
